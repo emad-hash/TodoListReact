@@ -1,5 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@100;200;300;400;500;600;700;800;900&family=Hind&family=Raleway:ital@1&family=Tajawal&display=swap');
+
 .App {
   text-align: center;
+  font-family: 'Alexandria', sans-serif;
+  font-family: 'Hind', sans-serif;
+  font-family: 'Raleway', sans-serif;
+  font-family: 'Tajawal', sans-serif;
 }
 
 .App-logo {
@@ -32,7 +38,27 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+.iconbtn {
+  transition: all 0.2s !important;
+}
+
+.iconbtn:hover {
+  background: #c5c5c5 !important;
+  box-shadow: 0 7px 7px rgba(0, 0, 0, 0.4);
+}
+
+.cardtodo {
+  transition: all 0.2s !important;
+}
+
+.cardtodo:hover {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  box-shadow: 0 7px 7px rgba(0, 0, 0, 0.4);
 }
