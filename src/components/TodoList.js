@@ -8,52 +8,51 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
+import { v4 as uuidv4 } from "uuid";
 
 import Todo from "./Todo";
-// لعمل id تلقائي
-import { v4 as uuidv4 } from "uuid";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { TodosContext } from "../contexts/todosContext";
 
-const initialtodos = [
-  {
-    id: uuidv4(),
-    title: "قراءة كتاب",
-    details: "السلام عليكم",
-    isCompleted: false,
-  },
-  {
-    id: uuidv4(),
-    title: "قراءة كتاب",
-    details: "2السلام عليكم",
-    isCompleted: false,
-  },
-  {
-    id: uuidv4(),
-    title: "قراءة كتاب",
-    details: "3السلام عليكم",
-    isCompleted: false,
-  },
-];
 export default function TodoList() {
-  const [todos, setTodos] = useState(initialtodos);
-  const [titleInput, setTitleInput] = useState("");
+  const { todos, setTodos } = useContext(TodosContext);
 
-  function handleCheckClick(todoId){
-    const updateTodos = todos.map((t) => {
-        // eslint-disable-next-line eqeqeq
-        if(t.id == todoId){
-            // t.isCompleted = true
-            t.isCompleted = !t.isCompleted
-        }
-        return t;
-    })
-    setTodos(updateTodos)
-  }
+  const [titleInput, setTitleInput] = useState("");
+  const [displayedTodosType,setDisplayedTodosType] = useState("all")
   
-  const todoJSX = todos.map((t) => {
-    return <Todo title={t.title} todo={t} handleCheck={handleCheckClick}/>;
+  ////////// filteration arrays 
+  const CompletedTodos = todos.filter((t)=>{
+    return t.isCompleted ;
+  
+  })
+
+  const notCompletedTodos = todos.filter((t)=>{
+    return !t.isCompleted ;
+  });
+  let todosToBeRendered = todos;
+
+  // eslint-disable-next-line eqeqeq
+  if(displayedTodosType == "completed"){
+    todosToBeRendered = CompletedTodos;
+  }else if(displayedTodosType === "non-completed"){
+    todosToBeRendered = notCompletedTodos;
+  }else{
+    todosToBeRendered = todos;
+  }
+  const todoJSX = todosToBeRendered.map((t) => {
+    return <Todo title={t.title} todo={t} key={t.id} />;
   });
 
+
+  useEffect(() => {
+    const storageTodos = JSON.parse(localStorage.getItem("todos"));
+    setTodos(storageTodos);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  function changeDisplayedType(e){
+    setDisplayedTodosType(e.target.value)
+  }
   function handeladdclick() {
     const newTodo = {
       id: uuidv4(),
@@ -61,30 +60,34 @@ export default function TodoList() {
       details: "",
       isCompleted: false,
     };
-    setTodos([...todos, newTodo]);
+    const updatedTodos = [...todos, newTodo];
+    setTodos(updatedTodos);
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    setTitleInput("");
   }
   return (
-    <Container maxWidth="sm" >
-      <Card sx={{ minWidth: 275 }} >
-        <CardContent >
+    <Container maxWidth="sm">
+      <Card 
+      sx={{ minWidth: 275 }}
+      style={{maxHeight:"80vh" ,overflow: "scroll"}}
+      >
+        <CardContent>
           <Typography variant="h2">مهامي</Typography>
           <Divider />
           <ToggleButtonGroup
-            //   value={alignment}
+              value={displayedTodosType}
             exclusive
-            //   onChange={handleAlignment}
+              onChange={changeDisplayedType}
             aria-label="text alignment"
             style={{ marginTop: "30px" }}
           >
-            <ToggleButton value="left">الكل</ToggleButton>
-            <ToggleButton value="center">المنجز</ToggleButton>
-            <ToggleButton value="right">غير المنجز</ToggleButton>
+            <ToggleButton value="all">الكل</ToggleButton>
+            <ToggleButton value="completed">المنجز</ToggleButton>
+            <ToggleButton value="non-completed">غير المنجز</ToggleButton>
           </ToggleButtonGroup>
 
           {/* Todo */}
-          <div style={{overflow:"scroll",height:"400px"}} className="cardtodobox">
-          {todoJSX}
-          </div>
+            {todoJSX}
           {/* Todo */}
           <Grid container style={{ marginTop: "10px" }} spacing={2}>
             <Grid
@@ -112,6 +115,7 @@ export default function TodoList() {
                 onClick={() => {
                   handeladdclick();
                 }}
+                disabled={titleInput.length === 0}
               >
                 اضافة
               </Button>
